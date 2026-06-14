@@ -155,48 +155,48 @@ flowchart LR
 **Milestone 3 — Ingestion and chunking:**
 
 0. Shared schema (models.py)
-Prompt with: the fields needed across the whole pipeline — professor_id, name, rating, review_text, tags.
+     Prompt with: the fields needed across the whole pipeline — professor_id, name, rating, review_text, tags.
 
-Ask it to produce a Professor TypedDict and a Document TypedDict that every subsequent step imports from models.py rather than redefining inline.
+     Ask it to produce a Professor TypedDict and a Document TypedDict that every subsequent step imports from models.py rather than redefining inline.
 
 1. GraphQL fetcher
-Prompt with: an actual curl capture from DevTools (including headers — User-Agent, any auth token or cookie), the RMP professor ID structure, the Document schema from models.py, and the field names (name, rating, review_text, tags).
+     Prompt with: an actual curl capture from DevTools (including headers — User-Agent, any auth token or cookie), the RMP professor ID structure, the Document schema from models.py, and the field names (name, rating, review_text, tags).
 
-Ask it to produce a fetch_professor(professor_id) -> List[Document] function using httpx or requests with the GraphQL query string and all required auth headers included.
+     Ask it to produce a fetch_professor(professor_id) -> List[Document] function using httpx or requests with the GraphQL query string and all required auth headers included.
 
 2. Per-review chunker
-Prompt with: a sample raw RMP API response (JSON) and the metadata strategy (professor_name, rating, tags per chunk).
+     Prompt with: a sample raw RMP API response (JSON) and the metadata strategy (professor_name, rating, tags per chunk).
 
-Ask it to produce a chunk_reviews(raw_data) -> List[Document] function that splits on review boundaries rather than character count, importing Document from models.py.
+     Ask it to produce a chunk_reviews(raw_data) -> List[Document] function that splits on review boundaries rather than character count, importing Document from models.py.
 
 **Milestone 4 — Embedding and retrieval:**
 
 3. Chroma ingestion
 
-Prompt with: List[Document] schema from models.py, the fact that I am using nomic-embed-text via Ollama at http://localhost:11434, a concrete persist_directory path, and whether the collection should overwrite or append on re-run.
+     Prompt with: List[Document] schema from models.py, the fact that I am using nomic-embed-text via Ollama at http://localhost:11434, a concrete persist_directory path, and whether the collection should overwrite or append on re-run.
 
-Ask it to produce a build_vector_store(docs) -> Chroma function that correctly wires the Ollama embedding client to the Chroma collection and persists it to the specified directory.
+     Ask it to produce a build_vector_store(docs) -> Chroma function that correctly wires the Ollama embedding client to the Chroma collection and persists it to the specified directory.
 
 4. Retrieval function
 
-Prompt with: the Chroma collection setup, a sample query string, and whether metadata filtering by professor_id is in scope.
+     Prompt with: the Chroma collection setup, a sample query string, and whether metadata filtering by professor_id is in scope.
 
-Ask it to produce a retrieve(query, k=5) -> List[Document] function with the similarity search call, metadata passthrough, and a where={"professor_id": ...} filter if multi-professor support is needed.
+     Ask it to produce a retrieve(query, k=5) -> List[Document] function with the similarity search call, metadata passthrough, and a where={"professor_id": ...} filter if multi-professor support is needed.
 
 **Milestone 5 — Generation and interface:**
 
 5. Claude generation
 
-Prompt with: the retrieved chunks format, the locked prompt template below, and an example question like "Do students find Richard Whittaker's exams fair?"
-Use this template — give Claude the function body to fill, not the prompt design:
+     Prompt with: the retrieved chunks format, the locked prompt template below, and an example question like "Do students find Richard Whittaker's exams fair?"
+     Use this template — give Claude the function body to fill, not the prompt design:
 
-"
-You are a TA assistant. Given these reviews:
-{context}
-Answer the following question: {query}
-Cite ratings where relevant.
-"
+     "
+     You are a TA assistant. Given these reviews:
+     {context}
+     Answer the following question: {query}
+     Cite ratings where relevant.
+     "
 
-Ask it to produce a generate_response(query, context_docs) -> str function with this system prompt hardcoded and context injected by joining Document.review_text fields before the call.
+     Ask it to produce a generate_response(query, context_docs) -> str function with this system prompt hardcoded and context injected by joining Document.review_text fields before the call.
 
-planning.md input for all steps:chunking strategy section, the shared Document schema from models.py, and one concrete example of the expected input and output.
+Planning.md input for all steps: chunking strategy section, the shared Document schema from models.py, and one concrete example of the expected input and output.
