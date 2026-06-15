@@ -59,7 +59,7 @@ In rare cases where a Reddit comment is unusually long, it may exceed typical ch
 nomic-embed-text
 
 **Top-k:**
-5-10
+50 (initially 5)
 
 **Production tradeoff reflection:**
 My other consideration was all-MiniLM-L6-v2 which is comparatively less heavy but for the purposes of this project that is not a problem. For this specific domain nomic-embed-text is a better choice for the following reasons:
