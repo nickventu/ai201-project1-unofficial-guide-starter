@@ -171,6 +171,7 @@ No logic, no imports beyond what TypedDict needs
 This file will be imported by a GraphQL fetcher, a review chunker, a Chroma ingestion function, and a retrieval function — so keep it flat and stable
 
 - *What it produced:*
+  
 from typing import TypedDict, List
  
  
@@ -187,6 +188,7 @@ class Document(TypedDict):
     tags: List[str]
 
 - *What I changed or overrode:*
+  
   Nothing for this one
 
 **Instance 2**
@@ -254,4 +256,5 @@ def generate_response(query: str, context_docs: List[Document]) -> str:
     return message.content[0].text
 
 - *What I changed or overrode:*
+  
 System prompt clarification about professors vs. students because it kept misidentifying professors names as the actual students who left the reviews(which are anonymous).
